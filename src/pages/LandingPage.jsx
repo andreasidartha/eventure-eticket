@@ -1,10 +1,30 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, Music, Trophy, Mic, Palette } from 'lucide-react';
 import { categories } from '../data/events';
 
 const LandingPage = () => {
+  const navigate = useNavigate();
+  const [searchData, setSearchData] = useState({
+    search: '',
+    category: ''
+  });
+
+  const handleSearchChange = (e) => {
+    const { name, value } = e.target;
+    setSearchData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    const params = new URLSearchParams();
+    if (searchData.search) params.append('search', searchData.search);
+    if (searchData.category) params.append('category', searchData.category);
+    
+    navigate(`/events?${params.toString()}`);
+  };
+
   return (
     <div className="space-y-16 md:space-y-24 pb-16">
       {/* Hero Section */}
@@ -51,21 +71,29 @@ const LandingPage = () => {
       {/* Search Bar Section */}
       <section className="container mx-auto px-4 -mt-32 md:-mt-40 relative z-20">
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl">
-          <div className="flex flex-col md:flex-row items-center gap-4">
+          <form onSubmit={handleSearch} className="flex flex-col md:flex-row items-center gap-4">
             <div className="relative flex-grow w-full">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
+                name="search"
                 placeholder="Search for an event..."
+                value={searchData.search}
+                onChange={handleSearchChange}
                 className="w-full pl-12 pr-4 py-4 rounded-lg bg-gray-100 dark:bg-gray-700 border-2 border-transparent focus:outline-none focus:border-primary"
               />
             </div>
-            <select className="w-full md:w-auto px-4 py-4 rounded-lg bg-gray-100 dark:bg-gray-700 border-2 border-transparent focus:outline-none focus:border-primary">
+            <select 
+              name="category"
+              value={searchData.category}
+              onChange={handleSearchChange}
+              className="w-full md:w-auto px-4 py-4 rounded-lg bg-gray-100 dark:bg-gray-700 border-2 border-transparent focus:outline-none focus:border-primary"
+            >
               <option value="">All Categories</option>
               {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
             </select>
-            <button className="btn btn-primary w-full md:w-auto">Search</button>
-          </div>
+            <button type="submit" className="btn btn-primary w-full md:w-auto">Search</button>
+          </form>
         </div>
       </section>
 
